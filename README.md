@@ -8,10 +8,6 @@ CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using
 - Challenge password attribute support
 - Command-line interface for easy usage
 
-## Development
-
-This library was implemented with [Cursor](https://cursor.sh), the world's best IDE powered by AI. The implementation leverages Cursor's advanced AI capabilities for writing clean, efficient, and well-structured code.
-
 ## Installation
 
 ```bash
