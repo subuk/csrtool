@@ -1,6 +1,6 @@
 # CSRTool
 
-CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using ASN.1 directly, without relying on the standard x509 package for CSR generation.
+CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using ASN.1 directly, without relying on the standard x509 package for CSR generation. This library was created to address the limitations of the standard Go crypto/x509 package, which [does not properly support PKCS#10 attributes](https://github.com/golang/go/issues/15995) like challenge passwords.
 
 ## Features
 
