@@ -16,3 +16,33 @@ bin/
 .vscode/
 *.swp
 *.swo
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Go workspace file
+go.work
+
+# Web specific
+web/dist/
+web/public/csrtool.wasm
+web/public/wasm_exec.js
+web/node_modules/
+web/.env
+web/.env.local
+web/.env.*.local
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/.pnp
+web/.pnp.js
+web/coverage/
+web/.DS_Store
+web/.vite/
+web/*.local
