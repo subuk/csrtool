@@ -24,6 +24,11 @@ const (
 	EC384   KeyType = "EC384"
 )
 
+// PKCS#9 attribute OIDs
+var (
+	oidChallengePassword = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 7}
+)
+
 // GeneratePrivateKey generates a new private key based on the specified type
 func GeneratePrivateKey(keyType KeyType) (interface{}, error) {
 	switch keyType {
@@ -62,7 +67,7 @@ type publicKeyInfo struct {
 }
 
 // GenerateCSR generates a Certificate Signing Request using ASN.1 directly
-func GenerateCSR(privateKey interface{}, subject pkix.Name, dnsNames []string) ([]byte, error) {
+func GenerateCSR(privateKey interface{}, subject pkix.Name, dnsNames []string, challengePassword string) ([]byte, error) {
 	// Create the ASN.1 structure for the subject
 	subjectRDN, err := asn1.Marshal(subject.ToRDNSequence())
 	if err != nil {
@@ -75,6 +80,41 @@ func GenerateCSR(privateKey interface{}, subject pkix.Name, dnsNames []string) (
 		return nil, err
 	}
 
+	// Prepare attributes
+	var attributes []asn1.RawValue
+
+	// Add challengePassword if provided
+	if challengePassword != "" {
+		challengePasswordRaw, err := asn1.Marshal(challengePassword)
+		if err != nil {
+			return nil, err
+		}
+
+		type attribute struct {
+			Type   asn1.ObjectIdentifier
+			Values []asn1.RawValue `asn1:"set"`
+		}
+
+		attr := attribute{
+			Type: oidChallengePassword,
+			Values: []asn1.RawValue{
+				{
+					Class:     asn1.ClassUniversal,
+					Tag:       asn1.TagPrintableString,
+					Bytes:     challengePasswordRaw,
+					FullBytes: challengePasswordRaw,
+				},
+			},
+		}
+
+		attrBytes, err := asn1.Marshal(attr)
+		if err != nil {
+			return nil, err
+		}
+
+		attributes = append(attributes, asn1.RawValue{FullBytes: attrBytes})
+	}
+
 	// Create the certification request info
 	certReqInfo := certificationRequestInfo{
 		Version: 0,
@@ -82,7 +122,7 @@ func GenerateCSR(privateKey interface{}, subject pkix.Name, dnsNames []string) (
 			FullBytes: subjectRDN,
 		},
 		PublicKey:     publicKeyInfo,
-		RawAttributes: []asn1.RawValue{},
+		RawAttributes: attributes,
 	}
 
 	// Marshal the certification request info to be signed

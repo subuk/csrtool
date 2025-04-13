@@ -27,7 +27,12 @@ func main() {
 	}
 
 	// Generate a CSR
-	csrBytes, err := csrtool.GenerateCSR(privateKey, subject, []string{"example.com", "www.example.com"})
+	csrBytes, err := csrtool.GenerateCSR(
+		privateKey,
+		subject,
+		[]string{"example.com", "www.example.com"},
+		"mySecurePassword123",
+	)
 	if err != nil {
 		log.Fatalf("Failed to generate CSR: %v", err)
 	}
