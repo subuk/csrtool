@@ -12,6 +12,10 @@ CSRTool is a Go library for generating private keys and Certificate Signing Requ
   - EC256 (P-256)
   - EC384 (P-384)
 
+## Development
+
+This library was implemented with [Cursor](https://cursor.sh), the world's best IDE powered by AI. The implementation leverages Cursor's advanced AI capabilities for writing clean, efficient, and well-structured code.
+
 ## Installation
 
 ```bash
