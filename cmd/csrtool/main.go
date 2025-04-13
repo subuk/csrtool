@@ -24,17 +24,18 @@ var (
 )
 
 type GenerateCmd struct {
-	CommonName string   `arg:"" help:"Common Name (CN) for the certificate"`
-	KeyType    string   `short:"t" default:"rsa2048" enum:"rsa2048,rsa4096,ec256,ec384" help:"Key type"`
-	OutputKey  string   `short:"k" default:"private.key" help:"Output path for private key"`
-	OutputCSR  string   `short:"c" default:"csr.pem" help:"Output path for CSR"`
-	Country    string   `short:"C" default:"US" help:"Country code"`
-	State      string   `short:"S" default:"California" help:"State or province"`
-	Locality   string   `short:"L" default:"San Francisco" help:"Locality or city"`
-	Org        string   `short:"O" default:"Example Inc" help:"Organization name"`
-	OrgUnit    string   `short:"U" default:"IT" help:"Organizational unit"`
-	Email      string   `short:"E" default:"" help:"Email address"`
-	DNSNames   []string `help:"DNS names for the certificate"`
+	CommonName        string   `arg:"" help:"Common Name (CN) for the certificate"`
+	KeyType           string   `short:"t" default:"rsa2048" enum:"rsa2048,rsa4096,ec256,ec384" help:"Key type"`
+	OutputKey         string   `short:"k" default:"private.key" help:"Output path for private key"`
+	OutputCSR         string   `short:"c" default:"csr.pem" help:"Output path for CSR"`
+	Country           string   `short:"C" default:"US" help:"Country code"`
+	State             string   `short:"S" default:"California" help:"State or province"`
+	Locality          string   `short:"L" default:"San Francisco" help:"Locality or city"`
+	Org               string   `short:"O" default:"Example Inc" help:"Organization name"`
+	OrgUnit           string   `short:"U" default:"IT" help:"Organizational unit"`
+	Email             string   `short:"E" default:"" help:"Email address"`
+	DNSNames          []string `help:"DNS names for the certificate"`
+	ChallengePassword string   `short:"p" help:"Challenge password for the CSR"`
 }
 
 var cli struct {
@@ -120,7 +121,7 @@ func generate(cmd GenerateCmd) error {
 		privateKey,
 		subject,
 		cmd.DNSNames,
-		"",
+		cmd.ChallengePassword,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to generate CSR: %v", err)
