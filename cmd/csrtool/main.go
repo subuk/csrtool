@@ -9,7 +9,6 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -24,22 +23,23 @@ var (
 	gitCommit string
 )
 
-var cli struct {
-	Generate struct {
-		KeyType            string   `help:"Type of key to generate (rsa2048, rsa4096, ec256, ec384)" enum:"rsa2048,rsa4096,ec256,ec384" default:"rsa2048"`
-		OutputKey          string   `help:"Output file for the private key" type:"path" default:"private.key"`
-		OutputCSR          string   `help:"Output file for the CSR" type:"path" default:"request.csr"`
-		CommonName         string   `help:"Common Name (CN) for the certificate" required:""`
-		Organization       []string `help:"Organization (O) for the certificate"`
-		OrganizationalUnit []string `help:"Organizational Unit (OU) for the certificate"`
-		Country            []string `help:"Country (C) for the certificate"`
-		Province           []string `help:"Province/State (ST) for the certificate"`
-		Locality           []string `help:"Locality (L) for the certificate"`
-		DNSNames           []string `help:"DNS names for the certificate"`
-		ChallengePassword  string   `help:"Challenge password for the CSR"`
-	} `cmd:"" help:"Generate a new private key and CSR"`
+type GenerateCmd struct {
+	CommonName string   `arg:"" help:"Common Name (CN) for the certificate"`
+	KeyType    string   `short:"t" default:"rsa2048" enum:"rsa2048,rsa4096,ec256,ec384" help:"Key type"`
+	OutputKey  string   `short:"k" default:"private.key" help:"Output path for private key"`
+	OutputCSR  string   `short:"c" default:"csr.pem" help:"Output path for CSR"`
+	Country    string   `short:"C" default:"US" help:"Country code"`
+	State      string   `short:"S" default:"California" help:"State or province"`
+	Locality   string   `short:"L" default:"San Francisco" help:"Locality or city"`
+	Org        string   `short:"O" default:"Example Inc" help:"Organization name"`
+	OrgUnit    string   `short:"U" default:"IT" help:"Organizational unit"`
+	Email      string   `short:"E" default:"" help:"Email address"`
+	DNSNames   []string `help:"DNS names for the certificate"`
+}
 
-	Version struct{} `cmd:"" help:"Show version information"`
+var cli struct {
+	Generate GenerateCmd `cmd:"" help:"Generate a new private key and CSR"`
+	Version  struct{}    `cmd:"" help:"Show version information"`
 }
 
 func main() {
@@ -47,26 +47,33 @@ func main() {
 		kong.Name("csrtool"),
 		kong.Description("A tool for generating private keys and CSRs"),
 		kong.UsageOnError(),
+		kong.ConfigureHelp(kong.HelpOptions{
+			Compact: true,
+		}),
 	)
 
 	switch ctx.Command() {
-	case "generate":
-		generate()
+	case "generate <common-name>":
+		if err := generate(cli.Generate); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "version":
 		fmt.Printf("csrtool version %s\n", version)
 		fmt.Printf("Build time: %s\n", buildTime)
 		fmt.Printf("Git commit: %s\n", gitCommit)
 	default:
-		ctx.FatalIfErrorf(fmt.Errorf("unknown command"))
+		ctx.PrintUsage(true)
+		os.Exit(1)
 	}
 }
 
-func generate() {
+func generate(cmd GenerateCmd) error {
 	// Generate private key
 	var privateKey interface{}
 	var err error
 
-	switch strings.ToLower(cli.Generate.KeyType) {
+	switch strings.ToLower(cmd.KeyType) {
 	case "rsa2048":
 		privateKey, err = rsa.GenerateKey(rand.Reader, 2048)
 	case "rsa4096":
@@ -76,17 +83,17 @@ func generate() {
 	case "ec384":
 		privateKey, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	default:
-		log.Fatalf("Unsupported key type: %s", cli.Generate.KeyType)
+		return fmt.Errorf("unsupported key type: %s", cmd.KeyType)
 	}
 
 	if err != nil {
-		log.Fatalf("Failed to generate private key: %v", err)
+		return fmt.Errorf("failed to generate private key: %v", err)
 	}
 
 	// Save private key
 	keyBytes, err := x509.MarshalPKCS8PrivateKey(privateKey)
 	if err != nil {
-		log.Fatalf("Failed to marshal private key: %v", err)
+		return fmt.Errorf("failed to marshal private key: %v", err)
 	}
 
 	keyPEM := pem.EncodeToMemory(&pem.Block{
@@ -94,36 +101,37 @@ func generate() {
 		Bytes: keyBytes,
 	})
 
-	if err := os.WriteFile(cli.Generate.OutputKey, keyPEM, 0600); err != nil {
-		log.Fatalf("Failed to write private key: %v", err)
+	if err := os.WriteFile(cmd.OutputKey, keyPEM, 0600); err != nil {
+		return fmt.Errorf("failed to write private key: %v", err)
 	}
 
 	// Create subject
 	subject := pkix.Name{
-		CommonName:         cli.Generate.CommonName,
-		Organization:       cli.Generate.Organization,
-		OrganizationalUnit: cli.Generate.OrganizationalUnit,
-		Country:            cli.Generate.Country,
-		Province:           cli.Generate.Province,
-		Locality:           cli.Generate.Locality,
+		CommonName:         cmd.CommonName,
+		Organization:       []string{cmd.Org},
+		OrganizationalUnit: []string{cmd.OrgUnit},
+		Country:            []string{cmd.Country},
+		Province:           []string{cmd.State},
+		Locality:           []string{cmd.Locality},
 	}
 
 	// Generate CSR
 	csrBytes, err := csrtool.GenerateCSR(
 		privateKey,
 		subject,
-		cli.Generate.DNSNames,
-		cli.Generate.ChallengePassword,
+		cmd.DNSNames,
+		"",
 	)
 	if err != nil {
-		log.Fatalf("Failed to generate CSR: %v", err)
+		return fmt.Errorf("failed to generate CSR: %v", err)
 	}
 
 	// Save CSR
-	if err := os.WriteFile(cli.Generate.OutputCSR, csrBytes, 0644); err != nil {
-		log.Fatalf("Failed to write CSR: %v", err)
+	if err := os.WriteFile(cmd.OutputCSR, csrBytes, 0644); err != nil {
+		return fmt.Errorf("failed to write CSR: %v", err)
 	}
 
-	fmt.Printf("Private key saved to: %s\n", cli.Generate.OutputKey)
-	fmt.Printf("CSR saved to: %s\n", cli.Generate.OutputCSR)
+	fmt.Printf("Private key saved to: %s\n", cmd.OutputKey)
+	fmt.Printf("CSR saved to: %s\n", cmd.OutputCSR)
+	return nil
 }
