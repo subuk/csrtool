@@ -5,7 +5,6 @@ CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using
 ## Features
 
 - Generate CSRs using ASN.1 directly
-- Support for RSA and ECDSA private keys
 - Challenge password attribute support
 - Command-line interface for easy usage
 
@@ -44,10 +43,10 @@ if err != nil {
 
 ### Command Line Interface
 
-The CLI tool provides an easy way to generate private keys and CSRs:
+The CLI tool provides an easy way to generate CSRs:
 
 ```bash
-# Generate a new RSA 2048-bit key and CSR
+# Generate a CSR with RSA key
 csrtool generate \
     --common-name "example.com" \
     --organization "Example Organization" \
@@ -55,7 +54,7 @@ csrtool generate \
     --dns-names "example.com" "www.example.com" \
     --challenge-password "hello321"
 
-# Generate an ECDSA P-256 key and CSR
+# Generate a CSR with ECDSA key
 csrtool generate \
     --key-type ec256 \
     --common-name "example.com" \
@@ -68,8 +67,7 @@ csrtool --help
 ```
 
 Available options:
-- `--key-type`: Type of key to generate (rsa2048, rsa4096, ec256, ec384)
-- `--output-key`: Output file for the private key
+- `--key-type`: Type of key to use (rsa2048, rsa4096, ec256, ec384)
 - `--output-csr`: Output file for the CSR
 - `--common-name`: Common Name (CN) for the certificate
 - `--organization`: Organization (O) for the certificate
@@ -82,7 +80,7 @@ Available options:
 
 ## Example
 
-See the `examples` directory for a complete example of generating a private key and CSR.
+See the `examples` directory for a complete example of generating a CSR.
 
 ## License
 
