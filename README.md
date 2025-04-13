@@ -58,6 +58,100 @@ csrtool generate example.com \
 | ec256    | ECDSA with P-256 curve     |
 | ec384    | ECDSA with P-384 curve     |
 
+## 📚 Library Usage
+
+Here's how to use the CSRTool library in your Go code:
+
+```go
+package main
+
+import (
+    "crypto/rand"
+    "crypto/rsa"
+    "crypto/x509/pkix"
+    "fmt"
+    "log"
+
+    "github.com/subuk/csrtool/pkg/csrtool"
+)
+
+func main() {
+    // Generate a private key
+    privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+    if err != nil {
+        log.Fatalf("Failed to generate private key: %v", err)
+    }
+
+    // Create a subject for the CSR
+    subject := pkix.Name{
+        CommonName:         "example.com",
+        Organization:       []string{"Example Organization"},
+        OrganizationalUnit: []string{"Example Unit"},
+        Country:            []string{"US"},
+        Province:           []string{"California"},
+        Locality:           []string{"San Francisco"},
+    }
+
+    // Generate a CSR
+    csrBytes, err := csrtool.GenerateCSR(
+        privateKey,
+        subject,
+        []string{"example.com", "www.example.com"},
+        "challenge-password", // Optional challenge password
+    )
+    if err != nil {
+        log.Fatalf("Failed to generate CSR: %v", err)
+    }
+
+    fmt.Printf("Generated CSR:\n%s\n", string(csrBytes))
+}
+```
+
+### Advanced Usage
+
+You can also use ECDSA keys:
+
+```go
+package main
+
+import (
+    "crypto/ecdsa"
+    "crypto/elliptic"
+    "crypto/rand"
+    "crypto/x509/pkix"
+    "fmt"
+    "log"
+
+    "github.com/subuk/csrtool/pkg/csrtool"
+)
+
+func main() {
+    // Generate an ECDSA private key
+    privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+    if err != nil {
+        log.Fatalf("Failed to generate private key: %v", err)
+    }
+
+    // Create a subject with optional fields
+    subject := pkix.Name{
+        CommonName: "example.com",
+    }
+
+    // Generate a CSR with optional fields
+    csrBytes, err := csrtool.GenerateCSR(
+        privateKey,
+        subject,
+        []string{"example.com"},
+        "", // No challenge password
+    )
+    if err != nil {
+        log.Fatalf("Failed to generate CSR: %v", err)
+    }
+
+    fmt.Printf("Generated CSR:\n%s\n", string(csrBytes))
+}
+```
+
 ## 🛠️ Building from Source
 
 ### CLI Tool
