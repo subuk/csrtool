@@ -17,6 +17,13 @@ import (
 	"github.com/subuk/csrtool/pkg/csrtool"
 )
 
+// Version information set during build
+var (
+	version   string
+	buildTime string
+	gitCommit string
+)
+
 var cli struct {
 	Generate struct {
 		KeyType            string   `help:"Type of key to generate (rsa2048, rsa4096, ec256, ec384)" enum:"rsa2048,rsa4096,ec256,ec384" default:"rsa2048"`
@@ -31,6 +38,8 @@ var cli struct {
 		DNSNames           []string `help:"DNS names for the certificate"`
 		ChallengePassword  string   `help:"Challenge password for the CSR"`
 	} `cmd:"" help:"Generate a new private key and CSR"`
+
+	Version struct{} `cmd:"" help:"Show version information"`
 }
 
 func main() {
@@ -43,6 +52,10 @@ func main() {
 	switch ctx.Command() {
 	case "generate":
 		generate()
+	case "version":
+		fmt.Printf("csrtool version %s\n", version)
+		fmt.Printf("Build time: %s\n", buildTime)
+		fmt.Printf("Git commit: %s\n", gitCommit)
 	default:
 		ctx.FatalIfErrorf(fmt.Errorf("unknown command"))
 	}
