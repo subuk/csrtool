@@ -30,8 +30,10 @@ web-build: wasm
 	cd web && npm install && npm run build
 
 # Run web development server
-web: wasm
-	cd web && npm install && npm run dev
+web: web/public/
+	GOOS=js GOARCH=wasm go build -o web/public/csrtool.wasm ./pkg/wasm
+	cp "$(WASM_EXEC)" web/public/
+	cd web && npm run dev
 
 # Clean build artifacts and generated files
 clean:

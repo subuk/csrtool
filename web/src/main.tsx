@@ -6,7 +6,7 @@ import './index.css'
 
 // Initialize WASM
 const go = new Go()
-WebAssembly.instantiateStreaming(fetch('/csrtool.wasm'), go.importObject).then((result) => {
+WebAssembly.instantiateStreaming(fetch('/csrtool/csrtool.wasm'), go.importObject).then((result) => {
   go.run(result.instance)
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
