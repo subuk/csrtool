@@ -65,6 +65,8 @@ Available key types:
 
 The web interface uses WebAssembly to generate CSRs entirely in your browser, ensuring that private keys never leave your device.
 
+You can also try the web interface at [https://subuk.github.io/csrtool/](https://subuk.github.io/csrtool/).
+
 ## Building from Source
 
 ### CLI Tool
