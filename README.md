@@ -1,16 +1,12 @@
 # CSRTool
 
-CSRTool is a Go library for generating private keys and Certificate Signing Requests (CSRs) using ASN.1 directly, without relying on the standard x509 package for CSR generation.
+CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using ASN.1 directly, without relying on the standard x509 package for CSR generation.
 
 ## Features
 
-- Generate RSA and ECDSA private keys
 - Generate CSRs using ASN.1 directly
-- Support for multiple key types:
-  - RSA2048
-  - RSA4096
-  - EC256 (P-256)
-  - EC384 (P-384)
+- Support for RSA and ECDSA private keys
+- Challenge password attribute support
 
 ## Development
 
@@ -26,8 +22,17 @@ go get github.com/subuk/csrtool
 
 ### Generating a Private Key
 
+Generate your private key using the standard crypto package:
+
 ```go
-privateKey, err := csrtool.GeneratePrivateKey(csrtool.RSA2048)
+// For RSA keys
+privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+if err != nil {
+    log.Fatal(err)
+}
+
+// For ECDSA keys
+privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 if err != nil {
     log.Fatal(err)
 }
@@ -43,7 +48,12 @@ subject := pkix.Name{
     // ... other subject fields
 }
 
-csrBytes, err := csrtool.GenerateCSR(privateKey, subject, []string{"example.com", "www.example.com"})
+csrBytes, err := csrtool.GenerateCSR(
+    privateKey,
+    subject,
+    []string{"example.com", "www.example.com"},
+    "challengePassword", // optional challenge password
+)
 if err != nil {
     log.Fatal(err)
 }

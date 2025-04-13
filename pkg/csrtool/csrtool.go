@@ -14,36 +14,10 @@ import (
 	"errors"
 )
 
-// KeyType represents the type of key to generate
-type KeyType string
-
-const (
-	RSA2048 KeyType = "RSA2048"
-	RSA4096 KeyType = "RSA4096"
-	EC256   KeyType = "EC256"
-	EC384   KeyType = "EC384"
-)
-
 // PKCS#9 attribute OIDs
 var (
 	oidChallengePassword = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 7}
 )
-
-// GeneratePrivateKey generates a new private key based on the specified type
-func GeneratePrivateKey(keyType KeyType) (interface{}, error) {
-	switch keyType {
-	case RSA2048:
-		return rsa.GenerateKey(rand.Reader, 2048)
-	case RSA4096:
-		return rsa.GenerateKey(rand.Reader, 4096)
-	case EC256:
-		return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	case EC384:
-		return ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	default:
-		return nil, errors.New("unsupported key type")
-	}
-}
 
 type pkcs10CertificationRequest struct {
 	Raw                      asn1.RawContent
@@ -66,7 +40,9 @@ type publicKeyInfo struct {
 	PublicKey asn1.BitString
 }
 
-// GenerateCSR generates a Certificate Signing Request using ASN.1 directly
+// GenerateCSR generates a Certificate Signing Request using ASN.1 directly.
+// The privateKey parameter should be either *rsa.PrivateKey or *ecdsa.PrivateKey.
+// Users should generate their own private keys using the standard crypto package.
 func GenerateCSR(privateKey interface{}, subject pkix.Name, dnsNames []string, challengePassword string) ([]byte, error) {
 	// Create the ASN.1 structure for the subject
 	subjectRDN, err := asn1.Marshal(subject.ToRDNSequence())

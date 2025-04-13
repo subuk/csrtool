@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509/pkix"
 	"fmt"
 	"log"
@@ -10,8 +12,8 @@ import (
 )
 
 func main() {
-	// Generate an RSA private key
-	privateKey, err := csrtool.GeneratePrivateKey(csrtool.RSA2048)
+	// Generate an RSA private key using the standard crypto package
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		log.Fatalf("Failed to generate private key: %v", err)
 	}
@@ -31,7 +33,7 @@ func main() {
 		privateKey,
 		subject,
 		[]string{"example.com", "www.example.com"},
-		"mySecurePassword123",
+		"hello321",
 	)
 	if err != nil {
 		log.Fatalf("Failed to generate CSR: %v", err)
