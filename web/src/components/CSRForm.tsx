@@ -23,11 +23,11 @@ export default function CSRForm() {
   const [formData, setFormData] = useState<CSRFormData>({
     commonName: '',
     keyType: 'rsa2048',
-    country: 'US',
-    state: 'California',
-    locality: 'San Francisco',
-    org: 'Example Inc',
-    orgUnit: 'IT',
+    country: '',
+    state: '',
+    locality: '',
+    org: '',
+    orgUnit: '',
     email: '',
     dnsNames: [],
     challengePassword: '',
@@ -97,7 +97,6 @@ export default function CSRForm() {
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 maxLength={2}
-                required
               />
             </div>
 
@@ -111,7 +110,6 @@ export default function CSRForm() {
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                required
               />
             </div>
 
@@ -125,7 +123,6 @@ export default function CSRForm() {
                 value={formData.locality}
                 onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                required
               />
             </div>
 
@@ -139,7 +136,6 @@ export default function CSRForm() {
                 value={formData.org}
                 onChange={(e) => setFormData({ ...formData, org: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                required
               />
             </div>
 
@@ -153,7 +149,6 @@ export default function CSRForm() {
                 value={formData.orgUnit}
                 onChange={(e) => setFormData({ ...formData, orgUnit: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                required
               />
             </div>
 

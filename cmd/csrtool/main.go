@@ -28,11 +28,11 @@ type GenerateCmd struct {
 	KeyType           string   `short:"t" default:"rsa2048" enum:"rsa2048,rsa4096,ec256,ec384" help:"Key type"`
 	OutputKey         string   `short:"k" default:"private.key" help:"Output path for private key"`
 	OutputCSR         string   `short:"c" default:"csr.pem" help:"Output path for CSR"`
-	Country           string   `short:"C" default:"US" help:"Country code"`
-	State             string   `short:"S" default:"California" help:"State or province"`
-	Locality          string   `short:"L" default:"San Francisco" help:"Locality or city"`
-	Org               string   `short:"O" default:"Example Inc" help:"Organization name"`
-	OrgUnit           string   `short:"U" default:"IT" help:"Organizational unit"`
+	Country           string   `short:"C" help:"Country code"`
+	State             string   `short:"S" help:"State or province"`
+	Locality          string   `short:"L" help:"Locality or city"`
+	Org               string   `short:"O" help:"Organization name"`
+	OrgUnit           string   `short:"U" help:"Organizational unit"`
 	Email             string   `short:"E" default:"" help:"Email address"`
 	DNSNames          []string `help:"DNS names for the certificate"`
 	ChallengePassword string   `short:"p" help:"Challenge password for the CSR"`
@@ -108,12 +108,23 @@ func generate(cmd GenerateCmd) error {
 
 	// Create subject
 	subject := pkix.Name{
-		CommonName:         cmd.CommonName,
-		Organization:       []string{cmd.Org},
-		OrganizationalUnit: []string{cmd.OrgUnit},
-		Country:            []string{cmd.Country},
-		Province:           []string{cmd.State},
-		Locality:           []string{cmd.Locality},
+		CommonName: cmd.CommonName,
+	}
+
+	if cmd.Country != "" {
+		subject.Country = []string{cmd.Country}
+	}
+	if cmd.State != "" {
+		subject.Province = []string{cmd.State}
+	}
+	if cmd.Locality != "" {
+		subject.Locality = []string{cmd.Locality}
+	}
+	if cmd.Org != "" {
+		subject.Organization = []string{cmd.Org}
+	}
+	if cmd.OrgUnit != "" {
+		subject.OrganizationalUnit = []string{cmd.OrgUnit}
 	}
 
 	// Generate CSR

@@ -86,12 +86,23 @@ func generateCSR(this js.Value, args []js.Value) interface{} {
 
 	// Create subject
 	subject := pkix.Name{
-		CommonName:         req.CommonName,
-		Organization:       []string{req.Org},
-		OrganizationalUnit: []string{req.OrgUnit},
-		Country:            []string{req.Country},
-		Province:           []string{req.State},
-		Locality:           []string{req.Locality},
+		CommonName: req.CommonName,
+	}
+
+	if req.Country != "" {
+		subject.Country = []string{req.Country}
+	}
+	if req.State != "" {
+		subject.Province = []string{req.State}
+	}
+	if req.Locality != "" {
+		subject.Locality = []string{req.Locality}
+	}
+	if req.Org != "" {
+		subject.Organization = []string{req.Org}
+	}
+	if req.OrgUnit != "" {
+		subject.OrganizationalUnit = []string{req.OrgUnit}
 	}
 
 	// Generate CSR
