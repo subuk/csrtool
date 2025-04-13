@@ -7,6 +7,7 @@ CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using
 - Generate CSRs using ASN.1 directly
 - Support for RSA and ECDSA private keys
 - Challenge password attribute support
+- Command-line interface for easy usage
 
 ## Development
 
@@ -20,25 +21,7 @@ go get github.com/subuk/csrtool
 
 ## Usage
 
-### Generating a Private Key
-
-Generate your private key using the standard crypto package:
-
-```go
-// For RSA keys
-privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-if err != nil {
-    log.Fatal(err)
-}
-
-// For ECDSA keys
-privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-### Generating a CSR
+### Library Usage
 
 ```go
 subject := pkix.Name{
@@ -58,6 +41,44 @@ if err != nil {
     log.Fatal(err)
 }
 ```
+
+### Command Line Interface
+
+The CLI tool provides an easy way to generate private keys and CSRs:
+
+```bash
+# Generate a new RSA 2048-bit key and CSR
+csrtool generate \
+    --common-name "example.com" \
+    --organization "Example Organization" \
+    --country "US" \
+    --dns-names "example.com" "www.example.com" \
+    --challenge-password "hello321"
+
+# Generate an ECDSA P-256 key and CSR
+csrtool generate \
+    --key-type ec256 \
+    --common-name "example.com" \
+    --organization "Example Organization" \
+    --country "US" \
+    --dns-names "example.com" "www.example.com"
+
+# Show help
+csrtool --help
+```
+
+Available options:
+- `--key-type`: Type of key to generate (rsa2048, rsa4096, ec256, ec384)
+- `--output-key`: Output file for the private key
+- `--output-csr`: Output file for the CSR
+- `--common-name`: Common Name (CN) for the certificate
+- `--organization`: Organization (O) for the certificate
+- `--organizational-unit`: Organizational Unit (OU) for the certificate
+- `--country`: Country (C) for the certificate
+- `--province`: Province/State (ST) for the certificate
+- `--locality`: Locality (L) for the certificate
+- `--dns-names`: DNS names for the certificate
+- `--challenge-password`: Challenge password for the CSR
 
 ## Example
 
