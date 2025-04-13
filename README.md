@@ -85,3 +85,7 @@ See the `examples` directory for a complete example of generating a CSR.
 ## License
 
 MIT
+
+---
+
+<small>Built with [Cursor](https://cursor.sh)</small>
