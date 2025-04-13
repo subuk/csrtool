@@ -1,82 +1,106 @@
 # CSRTool
 
-CSRTool is a Go library for generating Certificate Signing Requests (CSRs) using ASN.1 directly, without relying on the standard x509 package for CSR generation. This library was created to address the limitations of the standard Go crypto/x509 package, which [does not properly support PKCS#10 attributes](https://github.com/golang/go/issues/15995) like challenge passwords.
+A tool for generating private keys and Certificate Signing Requests (CSRs) using ASN.1 directly.
 
 ## Features
 
-- Generate CSRs using ASN.1 directly
-- Challenge password attribute support
-- Command-line interface for easy usage
+- Generate private keys with RSA and ECDSA support
+- Create CSRs with ASN.1 encoding
+- Web interface for easy CSR generation
+- CLI tool for automation and scripting
+- PKCS#10 standard compliance
 
 ## Installation
 
+### CLI Tool
+
 ```bash
-go get github.com/subuk/csrtool
+go install github.com/subuk/csrtool/cmd/csrtool@latest
 ```
+
+### Web Interface
+
+1. Clone the repository:
+```bash
+git clone https://github.com/subuk/csrtool.git
+cd csrtool
+```
+
+2. Build and run the web interface:
+```bash
+make web
+```
+
+The web interface will be available at http://localhost:3000
 
 ## Usage
 
-### Library Usage
+### CLI Tool
 
-```go
-subject := pkix.Name{
-    CommonName:         "example.com",
-    Organization:       []string{"Example Organization"},
-    Country:           []string{"US"},
-    // ... other subject fields
-}
-
-csrBytes, err := csrtool.GenerateCSR(
-    privateKey,
-    subject,
-    []string{"example.com", "www.example.com"},
-    "challengePassword", // optional challenge password
-)
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-### Command Line Interface
-
-The CLI tool provides an easy way to generate CSRs:
+Generate a new private key and CSR:
 
 ```bash
-# Generate a CSR with RSA key
-csrtool generate \
-    --common-name "example.com" \
-    --organization "Example Organization" \
-    --country "US" \
-    --dns-names "example.com" "www.example.com" \
-    --challenge-password "hello321"
-
-# Generate a CSR with ECDSA key
-csrtool generate \
-    --key-type ec256 \
-    --common-name "example.com" \
-    --organization "Example Organization" \
-    --country "US" \
-    --dns-names "example.com" "www.example.com"
-
-# Show help
-csrtool --help
+csrtool generate example.com \
+  --key-type rsa2048 \
+  --country US \
+  --state California \
+  --locality San Francisco \
+  --org "Example Inc" \
+  --org-unit IT \
+  --email admin@example.com
 ```
 
-Available options:
-- `--key-type`: Type of key to use (rsa2048, rsa4096, ec256, ec384)
-- `--output-csr`: Output file for the CSR
-- `--common-name`: Common Name (CN) for the certificate
-- `--organization`: Organization (O) for the certificate
-- `--organizational-unit`: Organizational Unit (OU) for the certificate
-- `--country`: Country (C) for the certificate
-- `--province`: Province/State (ST) for the certificate
-- `--locality`: Locality (L) for the certificate
-- `--dns-names`: DNS names for the certificate
-- `--challenge-password`: Challenge password for the CSR
+Available key types:
+- `rsa2048`: RSA with 2048-bit key
+- `rsa4096`: RSA with 4096-bit key
+- `ec256`: ECDSA with P-256 curve
+- `ec384`: ECDSA with P-384 curve
 
-## Example
+### Web Interface
 
-See the `examples` directory for a complete example of generating a CSR.
+1. Open http://localhost:3000 in your browser
+2. Fill out the CSR form with your desired information
+3. Click "Generate CSR" to create your private key and CSR
+4. The generated private key and CSR will be displayed on the page
+
+The web interface uses WebAssembly to generate CSRs entirely in your browser, ensuring that private keys never leave your device.
+
+## Building from Source
+
+### CLI Tool
+
+```bash
+make build
+```
+
+The binary will be created in the `bin/` directory.
+
+### Web Interface
+
+```bash
+make web-build
+```
+
+The built files will be in the `web/dist/` directory.
+
+## Development
+
+### Running the Web Development Server
+
+```bash
+make web
+```
+
+This will:
+1. Build the WASM module
+2. Install web dependencies
+3. Start the development server at http://localhost:3000
+
+### Cleaning Build Artifacts
+
+```bash
+make clean
+```
 
 ## License
 
